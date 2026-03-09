@@ -23,9 +23,9 @@
   .requirements ul { list-style: none; padding: 0; }
   .requirements li { font-size: 13px; padding: 4px 0; color: #bbb; }
   .requirements li::before { content: "→ "; color: #666; }
-  .commute-table { width: 100%; margin-top: 16px; background: #222; border-radius: 8px; overflow: hidden; }
+  .commute-table { width: 100%; margin-top: 16px; background: #222; border-radius: 8px; overflow-x: auto; }
   .commute-table h2 { font-size: 15px; font-weight: 600; padding: 16px 16px 8px; }
-  .commute-table table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .commute-table table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 700px; }
   .commute-table th { text-align: left; padding: 8px 12px; color: #888; border-bottom: 1px solid #333; font-weight: 500; }
   .commute-table td { padding: 8px 12px; border-bottom: 1px solid #2a2a2a; }
   .commute-table tr:last-child td { border-bottom: none; }
@@ -56,6 +56,9 @@
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background: #4CAF50;"></div> Sean (547 Hancock)</div>
     <div class="legend-item"><div class="legend-dot" style="background: #E040FB;"></div> Henya (720 Nostrand)</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #FF6D00;"></div> Arturo (North Bergen NJ)</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #00BCD4;"></div> Gian (WSV Manhattan)</div>
+    <div class="legend-item"><div class="legend-dot" style="background: #FFEB3B;"></div> Max (Bushwick)</div>
     <div class="legend-item"><div class="legend-dot" style="background: #2196F3;"></div> Current Space (GMDC)</div>
     <div class="legend-item"><div class="legend-line" style="background: rgba(255, 152, 0, 0.5);"></div> ~GMDC commute radius (Sean)</div>
     <div class="legend-item"><div class="legend-line" style="background: rgba(244, 67, 54, 0.4);"></div> Excluded areas</div>
@@ -63,64 +66,82 @@
 
   <div class="commute-table">
     <h2>Commute Times (Google Maps, Mon afternoon)</h2>
-    <p class="note" style="padding: 0 16px;">Benchmark: GMDC (Sean 32 min driving, Henya 48 min transit). Anything ≤ GMDC = acceptable.</p>
+    <p class="note" style="padding: 0 16px;">Benchmark: GMDC commute for each person. Anything ≤ GMDC = acceptable.</p>
     <table>
       <tr>
         <th>Neighborhood</th>
-        <th>Sean (driving)</th>
+        <th>Sean (drive)</th>
         <th>Henya (transit)</th>
-        <th>vs. GMDC</th>
+        <th>Arturo (transit)</th>
+        <th>Gian (transit)</th>
+        <th>Max (transit)</th>
       </tr>
       <tr>
         <td><strong>Crown Heights ★</strong></td>
         <td class="good">10 min</td>
         <td class="good">13 min</td>
-        <td class="good">Much better</td>
+        <td class="over">~1h 24m</td>
+        <td class="good">33 min</td>
+        <td class="good">43 min</td>
       </tr>
       <tr>
         <td><strong>Bushwick</strong></td>
         <td class="good">10 min</td>
         <td class="ok">47 min</td>
-        <td class="good">Better (Sean) / Same (Henya)</td>
+        <td class="over">~1h 25m</td>
+        <td class="good">35 min</td>
+        <td class="good">~0 min</td>
       </tr>
       <tr>
         <td><strong>East Williamsburg</strong></td>
         <td class="good">18 min</td>
         <td class="over">53 min</td>
-        <td class="ok">Better (Sean) / Worse (Henya)</td>
+        <td class="over">~1h 24m</td>
+        <td class="good">38 min</td>
+        <td class="good">35 min</td>
       </tr>
       <tr>
         <td><strong>Gowanus</strong></td>
         <td class="good">26 min</td>
         <td class="good">37 min</td>
-        <td class="good">Better for both</td>
+        <td class="over">~1h 28m</td>
+        <td class="good">34 min</td>
+        <td class="over">53 min</td>
       </tr>
       <tr style="background: #2a2a2a;">
         <td><strong>Greenpoint (GMDC)</strong></td>
         <td class="ok">32 min</td>
         <td class="ok">48 min</td>
-        <td style="color: #888;">— Benchmark —</td>
+        <td class="ok">~1h 10m</td>
+        <td class="ok">40 min</td>
+        <td class="ok">48 min</td>
       </tr>
       <tr>
         <td><strong>LIC (Queens)</strong></td>
         <td class="ok">32 min</td>
         <td class="over">~55 min</td>
-        <td class="ok">Same (Sean) / Worse (Henya)</td>
+        <td class="good">~1h 1m</td>
+        <td class="good">31 min</td>
+        <td class="good">37 min</td>
       </tr>
       <tr>
         <td><strong>Red Hook</strong></td>
         <td class="over">37 min</td>
         <td class="over">~50 min</td>
-        <td class="over">Worse for both</td>
+        <td class="over">~1h 30m+</td>
+        <td class="ok">~40 min</td>
+        <td class="over">~55 min</td>
       </tr>
       <tr>
         <td><strong>Sunset Park</strong></td>
         <td class="over">40 min</td>
         <td class="over">~50 min</td>
-        <td class="over">Worse for both</td>
+        <td class="over">~1h 30m+</td>
+        <td class="ok">~42 min</td>
+        <td class="over">~55 min</td>
       </tr>
     </table>
-    <p class="note">Green = better than GMDC · Orange = at GMDC level · Red = worse than GMDC. Sean benchmark: 32 min driving. Henya benchmark: 48 min transit.</p>
+    <p class="note">Green = better than their GMDC commute · Orange = at GMDC level · Red = worse than GMDC. Arturo self-reports 45–60 min to GMDC.</p>
   </div>
 
   <div class="requirements">
@@ -177,12 +198,15 @@
   // Key locations
   const home = [40.6847, -73.9334];         // 547 Hancock St, Bed-Stuy
   const henya = [40.6741, -73.9504];        // 720 Nostrand Ave
+  const arturo = [40.7945, -74.0015];       // 7306 Park Ave, North Bergen NJ
+  const gian = [40.7277, -73.9979];          // 3 Washington Square Village, Manhattan
+  const max = [40.6958, -73.9171];           // Bushwick (central)
   const gmdc = [40.7385, -73.9561];         // 1205 Manhattan Ave, Greenpoint
 
   // Initialize map
   const map = L.map('map', {
-    center: [40.6950, -73.9450],
-    zoom: 13,
+    center: [40.7200, -73.9600],
+    zoom: 12,
     zoomControl: true
   });
 
@@ -213,6 +237,37 @@
   }).addTo(map);
   henyaMarker.bindPopup('<div class="popup-title">720 Nostrand Ave</div><div class="popup-detail">Henya — Crown Heights<br>Transit-dependent</div>');
 
+  // Arturo marker
+  const arturoMarker = L.circleMarker(arturo, {
+    radius: 10,
+    fillColor: '#FF6D00',
+    color: '#fff',
+    weight: 2,
+    fillOpacity: 0.9
+  }).addTo(map);
+  arturoMarker.bindPopup('<div class="popup-title">7306 Park Ave</div><div class="popup-detail">Arturo — North Bergen, NJ<br>Mixed transit (bus + train), ~45-60 min to GMDC</div>');
+
+  // Gian marker
+  const gianMarker = L.circleMarker(gian, {
+    radius: 10,
+    fillColor: '#00BCD4',
+    color: '#fff',
+    weight: 2,
+    fillOpacity: 0.9
+  }).addTo(map);
+  gianMarker.bindPopup('<div class="popup-title">3 Washington Square Village</div><div class="popup-detail">Gian — Greenwich Village, Manhattan<br>Transit, ~40 min to GMDC</div>');
+
+  // Max marker (Bushwick — no specific address)
+  // Max overlaps with Bushwick neighborhood marker, so we offset slightly
+  const maxMarker = L.circleMarker([max[0] + 0.003, max[1] + 0.003], {
+    radius: 10,
+    fillColor: '#FFEB3B',
+    color: '#fff',
+    weight: 2,
+    fillOpacity: 0.9
+  }).addTo(map);
+  maxMarker.bindPopup('<div class="popup-title">Bushwick</div><div class="popup-detail">Max — Bushwick, Brooklyn<br>Transit, ~48 min to GMDC</div>');
+
   // GMDC marker
   const gmdcMarker = L.circleMarker(gmdc, {
     radius: 10,
@@ -235,6 +290,20 @@
     color: '#E040FB',
     weight: 2,
     opacity: 0.3,
+    dashArray: '8, 8'
+  }).addTo(map);
+
+  L.polyline([arturo, gmdc], {
+    color: '#FF6D00',
+    weight: 2,
+    opacity: 0.2,
+    dashArray: '8, 8'
+  }).addTo(map);
+
+  L.polyline([gian, gmdc], {
+    color: '#00BCD4',
+    weight: 2,
+    opacity: 0.2,
     dashArray: '8, 8'
   }).addTo(map);
 
@@ -309,6 +378,30 @@
     icon: L.divIcon({
       className: '',
       html: '<div style="color:#E040FB;font-size:11px;font-weight:600;white-space:nowrap;text-shadow:0 0 4px rgba(0,0,0,0.8);">Henya</div>',
+      iconAnchor: [-14, 5]
+    })
+  }).addTo(map);
+
+  L.marker(arturo, {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="color:#FF6D00;font-size:11px;font-weight:600;white-space:nowrap;text-shadow:0 0 4px rgba(0,0,0,0.8);">Arturo</div>',
+      iconAnchor: [-14, 5]
+    })
+  }).addTo(map);
+
+  L.marker(gian, {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="color:#00BCD4;font-size:11px;font-weight:600;white-space:nowrap;text-shadow:0 0 4px rgba(0,0,0,0.8);">Gian</div>',
+      iconAnchor: [-14, 5]
+    })
+  }).addTo(map);
+
+  L.marker([max[0] + 0.003, max[1] + 0.003], {
+    icon: L.divIcon({
+      className: '',
+      html: '<div style="color:#FFEB3B;font-size:11px;font-weight:600;white-space:nowrap;text-shadow:0 0 4px rgba(0,0,0,0.8);">Max</div>',
       iconAnchor: [-14, 5]
     })
   }).addTo(map);
