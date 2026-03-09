@@ -43,6 +43,46 @@
   .popup-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
   .popup-detail { color: #aaa; }
   .note { font-size: 12px; color: #666; margin-top: 12px; font-style: italic; }
+
+  /* Space Matrix */
+  .space-matrix { background: #222; border-radius: 8px; margin-top: 20px; overflow: hidden; }
+  .space-matrix-header { display: flex; align-items: center; justify-content: space-between; padding: 16px; cursor: pointer; user-select: none; }
+  .space-matrix-header:hover { background: #2a2a2a; }
+  .space-matrix-header h2 { font-size: 15px; font-weight: 600; }
+  .space-matrix-toggle { font-size: 18px; color: #888; transition: transform 0.2s; }
+  .space-matrix-toggle.open { transform: rotate(180deg); }
+  .space-matrix-body { padding: 0 16px 16px; }
+  .space-matrix-body.collapsed { display: none; }
+
+  .space-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .space-card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 16px; position: relative; transition: border-color 0.2s; }
+  .space-card:hover { border-color: #555; }
+  .space-card-name { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .space-card-address { font-size: 12px; color: #888; margin-bottom: 12px; }
+  .space-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .space-card-stat { }
+  .space-card-stat-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .space-card-stat-value { font-size: 14px; font-weight: 500; }
+  .space-card-notes { margin-top: 12px; padding-top: 12px; border-top: 1px solid #2a2a2a; font-size: 12px; color: #aaa; line-height: 1.5; }
+  .space-card-link { display: inline-block; margin-top: 8px; font-size: 12px; color: #2196F3; text-decoration: none; }
+  .space-card-link:hover { text-decoration: underline; }
+  .space-card-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+
+  .vibe-bar { display: flex; gap: 2px; align-items: center; }
+  .vibe-pip { width: 8px; height: 14px; border-radius: 2px; background: #333; }
+  .vibe-pip.filled { background: #FF9800; }
+  .vibe-score-text { margin-left: 6px; font-size: 12px; color: #888; }
+
+  .compare-table-wrap { overflow-x: auto; margin-top: 16px; }
+  .compare-table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 600px; }
+  .compare-table th { text-align: left; padding: 8px 10px; color: #666; border-bottom: 1px solid #333; font-weight: 500; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .compare-table td { padding: 8px 10px; border-bottom: 1px solid #2a2a2a; }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table .best-val { color: #4CAF50; font-weight: 600; }
+  .compare-table .worst-val { color: #f44336; }
+  .compare-table .na-val { color: #555; }
+
+  .space-marker-icon { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 4px; border: 2px solid #fff; font-size: 10px; font-weight: 700; color: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.5); }
 </style>
 </head>
 <body>
@@ -51,7 +91,7 @@
 
 <div class="info-panel">
   <h1>Wooj Space Search — Commute Boundary</h1>
-  <p class="subtitle">Commute times from Google Maps, Monday afternoon traffic. Morning 8AM rush would be slightly longer.</p>
+  <p class="subtitle">Commute times from Google Maps. Driving = 8AM Tue rush hour. Transit = best available.</p>
 
   <div class="legend">
     <div class="legend-item"><div class="legend-dot" style="background: #4CAF50;"></div> Sean (547 Hancock)</div>
@@ -192,9 +232,100 @@
       <div class="hood-detail">Sean: 40 min · Henya: ~50 min transit<br>Worse than GMDC for both</div>
     </div>
   </div>
+
+  <!-- Space Comparison Matrix -->
+  <div class="space-matrix">
+    <div class="space-matrix-header" onclick="toggleMatrix()">
+      <h2>Space Comparison Matrix</h2>
+      <span class="space-matrix-toggle open" id="matrixToggle">▼</span>
+    </div>
+    <div class="space-matrix-body" id="matrixBody">
+      <p class="note" style="margin-top:0; margin-bottom: 16px;">Tracking all spaces under consideration. Click a marker on the map to see details.</p>
+      <div class="space-cards" id="spaceCards"></div>
+      <div class="compare-table-wrap">
+        <table class="compare-table" id="compareTable"></table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
+  // ============================================
+  // SPACE DATA — Edit this array to add spaces
+  // ============================================
+  const spaces = [
+    {
+      id: 'gmdc',
+      name: 'GMDC',
+      address: '1205 Manhattan Ave, Brooklyn, NY 11222',
+      neighborhood: 'Greenpoint',
+      coords: [40.7385, -73.9561],
+      sqft: 4400,
+      priceSqft: 23,
+      leaseTerms: '10-year, negotiating security deposit',
+      vibeScore: null,
+      status: 'negotiating',  // negotiating | visited | lead | rejected
+      link: '',
+      notes: 'Current deal on table. Industrial space, freight elevator, 3-phase power. Security deposit structure TBD.',
+      pros: 'Known quantity, good bones, negotiation underway',
+      cons: 'Commute for Henya at limit, deposit negotiation',
+      commutes: { sean: 32, henya: 48, arturo: 70, gian: 40, max: 48 }
+    },
+    {
+      id: '81-apollo',
+      name: '81 Apollo',
+      address: '81 Apollo St, Brooklyn, NY 11222',
+      neighborhood: 'Greenpoint',
+      coords: [40.7268, -73.9383],  // 81 Apollo St (from Google Maps)
+      sqft: 6000,
+      priceSqft: 21,
+      leaseTerms: 'No RE taxes',
+      vibeScore: null,
+      status: 'visited',
+      link: '',
+      notes: 'Visited 3/9. $21/sqft, no RE taxes — very attractive effective rate. 400A 3-phase, server room (ex-trading office), outlets throughout. No freight elevator but pallets fit in regular elevator. Ramp from gate to elevator zone. Deliveries need lift gate on truck (no dock). Unfinished ceiling — landlord open to TI that increases building value.',
+      pros: 'Best $/sqft, no RE taxes, 400A 3-phase already in, 1,600 sqft more than GMDC, TI negotiable, ramp to elevator zone',
+      cons: 'No freight elevator, no dock (lift gate surcharge ~$50-100/delivery, 2-3x/wk), unfinished ceiling, Henya transit +7 min vs GMDC',
+      commutes: { sean: 30, henya: 55, arturo: 70, gian: 42, max: 50 }
+    },
+    {
+      id: '538-johnson',
+      name: '538 Johnson Ave',
+      address: '538 Johnson Ave, Brooklyn, NY 11237',
+      neighborhood: 'Bushwick / E. Williamsburg',
+      coords: [40.7085, -73.9263],
+      sqft: 6075,
+      priceSqft: 25,
+      leaseTerms: '1-10 yr, flex, full build-out',
+      vibeScore: null,
+      status: 'lead',
+      link: 'https://www.loopnet.com/Listing/538-Johnson-Ave-Brooklyn-NY/13051432/',
+      notes: 'Two units available: 1st Fl #114 (4,344 sqft) or #115 (6,075 sqft). Flex space, full build-out. Visiting soon.',
+      pros: 'Best commute for Sean (~16 min) and Henya (38 min transit). Near L train. Max lives nearby.',
+      cons: '$25/sqft — highest price. Need to confirm electrical capacity, freight/dock situation.',
+      commutes: { sean: 18, henya: 38, arturo: 85, gian: 37, max: 10 }
+    },
+    {
+      id: '21-07-borden',
+      name: '21-07 Borden Ave',
+      address: '21-07 Borden Ave, Long Island City, NY 11101',
+      neighborhood: 'LIC',
+      coords: [40.7398, -73.9472],
+      sqft: 5500,
+      priceSqft: 18,
+      leaseTerms: '3-5 yr, shell space',
+      vibeScore: null,
+      status: 'lead',
+      link: 'https://www.loopnet.com/Listing/21-07-Borden-Ave-Long-Island-City-NY/30287348/',
+      notes: '$18/sqft — cheapest option. Shell space (3rd floor, unit 3C). Industrial zoning. 30 days availability. Short lease term (3-5 yr).',
+      pros: 'Lowest $/sqft by far. Best for Arturo, Gian, Max. Industrial.',
+      cons: 'Shell space = full build-out cost on you. 3rd floor — freight elevator? Henya 51 min. Short lease (3-5 yr). Sean commute worse at 8AM rush.',
+      commutes: { sean: 35, henya: 52, arturo: 61, gian: 31, max: 37 }
+    }
+  ];
+
+  // ============================================
+
   // Key locations
   const home = [40.6847, -73.9334];         // 547 Hancock St, Bed-Stuy
   const henya = [40.6741, -73.9504];        // 720 Nostrand Ave
@@ -423,6 +554,168 @@
       })
     }).addTo(map);
   });
+
+  // ============================================
+  // SPACE MATRIX RENDERING
+  // ============================================
+
+  const statusColors = {
+    negotiating: '#FF9800',
+    visited: '#2196F3',
+    lead: '#9C27B0',
+    rejected: '#f44336'
+  };
+
+  const statusLabels = {
+    negotiating: 'Negotiating',
+    visited: 'Visited',
+    lead: 'Lead',
+    rejected: 'Passed'
+  };
+
+  function renderVibeBar(score) {
+    if (score === null) return '<span class="na-val">—</span>';
+    let pips = '';
+    for (let i = 1; i <= 10; i++) {
+      pips += `<div class="vibe-pip${i <= score ? ' filled' : ''}"></div>`;
+    }
+    return `<div class="vibe-bar">${pips}<span class="vibe-score-text">${score}/10</span></div>`;
+  }
+
+  function fmt(val, prefix, suffix) {
+    if (val === null || val === undefined || val === '') return '<span class="na-val">TBD</span>';
+    return (prefix || '') + val.toLocaleString() + (suffix || '');
+  }
+
+  function fmtMin(val) {
+    if (val === null || val === undefined) return '<span class="na-val">—</span>';
+    if (val >= 60) return Math.floor(val / 60) + 'h ' + (val % 60) + 'm';
+    return val + ' min';
+  }
+
+  // Render space cards
+  function renderCards() {
+    const container = document.getElementById('spaceCards');
+    container.innerHTML = spaces.map(s => {
+      const statusColor = statusColors[s.status] || '#888';
+      const statusLabel = statusLabels[s.status] || s.status;
+      return `
+        <div class="space-card" id="card-${s.id}">
+          <div class="space-card-tag" style="background:${statusColor}22; color:${statusColor}; border:1px solid ${statusColor}44;">${statusLabel}</div>
+          <div class="space-card-name">${s.name}</div>
+          <div class="space-card-address">${s.address || s.neighborhood}</div>
+          <div class="space-card-grid">
+            <div class="space-card-stat">
+              <div class="space-card-stat-label">Size</div>
+              <div class="space-card-stat-value">${fmt(s.sqft, '', ' sqft')}</div>
+            </div>
+            <div class="space-card-stat">
+              <div class="space-card-stat-label">Price</div>
+              <div class="space-card-stat-value">${fmt(s.priceSqft, '$', '/sqft')}</div>
+            </div>
+            <div class="space-card-stat">
+              <div class="space-card-stat-label">Lease</div>
+              <div class="space-card-stat-value" style="font-size:12px;">${s.leaseTerms || '<span class="na-val">TBD</span>'}</div>
+            </div>
+            <div class="space-card-stat">
+              <div class="space-card-stat-label">Vibe</div>
+              <div class="space-card-stat-value">${renderVibeBar(s.vibeScore)}</div>
+            </div>
+          </div>
+          ${s.notes ? `<div class="space-card-notes">${s.notes}</div>` : ''}
+          ${s.link ? `<a class="space-card-link" href="${s.link}" target="_blank">View listing →</a>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Render comparison table
+  function renderCompareTable() {
+    const table = document.getElementById('compareTable');
+    const members = ['sean', 'henya', 'arturo', 'gian', 'max'];
+    const memberLabels = { sean: 'Sean', henya: 'Henya', arturo: 'Arturo', gian: 'Gian', max: 'Max' };
+
+    // Find best values for highlighting
+    const validSpaces = spaces.filter(s => s.status !== 'rejected');
+    const bestPrice = Math.min(...validSpaces.map(s => s.priceSqft).filter(v => v !== null));
+    const bestSqft = Math.max(...validSpaces.map(s => s.sqft).filter(v => v !== null));
+    const bestVibe = Math.max(...validSpaces.map(s => s.vibeScore).filter(v => v !== null));
+
+    let html = `<tr>
+      <th>Space</th><th>Status</th><th>Sqft</th><th>$/Sqft</th><th>Vibe</th>
+      ${members.map(m => `<th>${memberLabels[m]}</th>`).join('')}
+    </tr>`;
+
+    validSpaces.forEach(s => {
+      const priceClass = s.priceSqft === bestPrice ? 'best-val' : '';
+      const sqftClass = s.sqft === bestSqft ? 'best-val' : '';
+      const vibeClass = s.vibeScore === bestVibe ? 'best-val' : '';
+      const statusColor = statusColors[s.status] || '#888';
+
+      html += `<tr>
+        <td><strong>${s.name}</strong></td>
+        <td><span style="color:${statusColor}">${statusLabels[s.status] || s.status}</span></td>
+        <td class="${sqftClass}">${fmt(s.sqft, '', '')}</td>
+        <td class="${priceClass}">${fmt(s.priceSqft, '$', '')}</td>
+        <td class="${vibeClass}">${s.vibeScore !== null ? s.vibeScore + '/10' : '<span class="na-val">—</span>'}</td>
+        ${members.map(m => {
+          const val = s.commutes[m];
+          return `<td>${fmtMin(val)}</td>`;
+        }).join('')}
+      </tr>`;
+    });
+
+    table.innerHTML = html;
+  }
+
+  // Add space markers to map (square icons to differentiate from home/neighborhood circles)
+  function renderSpaceMarkers() {
+    spaces.forEach((s, i) => {
+      if (!s.coords) return;
+      // Skip GMDC since it already has a marker
+      if (s.id === 'gmdc') return;
+
+      const color = statusColors[s.status] || '#888';
+      const marker = L.marker(s.coords, {
+        icon: L.divIcon({
+          className: '',
+          html: `<div class="space-marker-icon" style="background:${color};">${i + 1}</div>`,
+          iconSize: [22, 22],
+          iconAnchor: [11, 11]
+        })
+      }).addTo(map);
+
+      let popupHtml = `<div class="popup-title">${s.name}</div>`;
+      popupHtml += `<div class="popup-detail">${s.address || s.neighborhood}<br>`;
+      if (s.sqft) popupHtml += `${s.sqft.toLocaleString()} sqft · `;
+      if (s.priceSqft) popupHtml += `$${s.priceSqft}/sqft`;
+      if (s.notes) popupHtml += `<br><br>${s.notes}`;
+      popupHtml += '</div>';
+      marker.bindPopup(popupHtml);
+
+      // Label
+      L.marker(s.coords, {
+        icon: L.divIcon({
+          className: '',
+          html: `<div style="color:${color};font-size:10px;font-weight:600;white-space:nowrap;text-shadow:0 0 4px rgba(0,0,0,0.8);">${s.name}</div>`,
+          iconAnchor: [-16, 5]
+        })
+      }).addTo(map);
+    });
+  }
+
+  // Matrix toggle
+  function toggleMatrix() {
+    const body = document.getElementById('matrixBody');
+    const toggle = document.getElementById('matrixToggle');
+    body.classList.toggle('collapsed');
+    toggle.classList.toggle('open');
+  }
+
+  // Initial render
+  renderCards();
+  renderCompareTable();
+  renderSpaceMarkers();
 </script>
 
 </body>
